@@ -1,0 +1,123 @@
+<!--
+  Copyright 2016 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<dom-module id="events-item">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+        min-height: 50px;
+      }
+	  
+	  paper-card {
+		  width:85%;
+		  margin-left:7%;
+	  }
+	  .title {
+		  font-size:24px;
+	  }
+	  span.clicker {
+	       cursor:pointer;
+	       color:blue;
+	       text-decoration:underline;
+	  }
+	  span.clicker:hover {
+	       text-decoration:none;
+	       text-shadow: 1px 0px 0px #555;
+	  }
+    </style>  
+  <paper-card>
+    <div class="card-content">
+		<a href="{{checkLink(event.link)}}" target="_blank" class="title">{{event.name}}</a> 
+		<br />{{event.human_date_start}} - {{event.city}}, <span class="clicker" on-click="countryClick">{{event.country}}</span>
+		
+		<p>
+			{{checkDescriptionText(event.description)}} 
+		</p>
+		
+		Topics: 
+		    	<template is="dom-repeat" items="{{event.technologies}}" as="singleTechnology">
+					  <span class="clicker" on-click="techClick">{{singleTechnology}}</span> <span hidden$="[[computeSpanHidden(index, event.technologies)]]"> - </span>
+				</template>
+		<br />
+		<template is="dom-if" if="{{checkAttendees(event)}}" >
+			Expected attendees: <b>{{event.attendees}}</b> - 
+		</template>	
+		<template is="dom-if" if="{{checkC4P(event)}}" >
+			<a href="{{event.call_for_paper_link}}" target="_blank">Call for Paper</a>
+		</template>
+    </div>
+  </paper-card>
+	  
+  </template>
+  <script>
+  
+    Polymer({
+      is: 'events-item',
+      properties: {
+        event: Object,
+        active: {
+          type: Boolean,
+          value: false
+        },
+		filter:Object
+      },
+	  checkDescriptionText: function(data) {
+	  	  if(data=="") {
+			  return "No description for this event";
+	  	  } else {
+	  	  	  return data;
+	  	  }
+	  },
+	  checkC4P: function(data) {
+		  if(data.hasOwnProperty('call_for_paper_link') && (data.call_for_paper_link!="")) {
+			  return true;
+		  } else {
+			  return false;
+		  } 	  
+	  },
+	  checkAttendees: function (data) { 
+		  if(data.hasOwnProperty('attendees') && (data.attendees > 0)) {
+			  return true;
+		  } else {
+			  return false;
+		  } 
+	  },
+	  checkLink: function(link) {
+		  if (link.search(/^http[s]?\:\/\//) == -1) {
+			  link = 'http://' + link;
+		  }
+		  return link;
+	  },
+	  techClick: function(event) {
+		  filter.technology = event.srcElement.innerText;
+		  var temp = document.querySelector("events-filter");
+		  temp._changeFilters(filter.country, filter.technology, filter.pastEvent);
+	  },
+	  countryClick: function(event) {
+		  filter.country = event.srcElement.innerText;
+		  var temp = document.querySelector("events-filter");
+		  temp._changeFilters(filter.country, filter.technology, filter.pastEvent);
+	  },
+	  computeSpanHidden: function(index, el){
+	    if(el.length - 1 === index)
+	      { return true; } 
+	    else 
+	      { return false; }
+	  }
+    });
+  </script>
+</dom-module>

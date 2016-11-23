@@ -1,0 +1,203 @@
+<!--
+  Copyright 2016 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<dom-module id="events-filter">
+	  
+	 <style>
+	     .container {
+	       @apply(--layout-horizontal);
+	     }
+	   	.searchbox {
+	         position: absolute;
+	         bottom: -94px;
+	         left: 16%;
+	         fill: #4285f4;
+			 width:67%;
+			 background-color:white;
+	   	}
+		paper-menu {
+			width: 80%;
+		    margin-right: 20px;
+			color:black;
+			display: block-inline;
+		}
+		paper-checkbox.green {
+		    align-self: center;
+		    padding: 8px 16px;
+			width: 80%;
+			font-size: 0.8em;
+			display: block-inline;
+		    --paper-checkbox-label-spacing: 0;
+		    --paper-checkbox-margin: 8px 16px 8px 0;
+		    --paper-checkbox-vertical-align: top;
+		  }
+		  
+		  paper-checkbox .subtitle {
+		      font-size: 0.9em;
+		      max-width: 150px;
+			  display: block;
+		    }
+			.container > div {
+				margin-left:2%;
+				margin-top:5px;
+				margin-bottom:5px;
+			}
+	   </style>
+  <template>
+	  
+	  <div class="searchbox bottom">
+	  	  <div class="container">
+		  	<div>
+				<paper-dropdown-menu label="Country">
+					<paper-listbox id="dropdownCountry" class="dropdown-content" selected="{{filter.country}}" attr-for-selected="value">
+						<paper-item value="">All</paper-item>
+						<template is="dom-repeat" items="{{countries}}" as="country">
+	    					<paper-item value="{{country}}">{{country}}</paper-item>
+						</template>
+					</paper-listbox>
+				</paper-dropdown-menu>
+			</div>
+		  	<div>
+				<paper-dropdown-menu label="Topic">
+					<paper-listbox id="dropdownTechnology" class="dropdown-content" selected="{{filter.technology}}" attr-for-selected="value">
+						<paper-item value="">All</paper-item>
+						<template is="dom-repeat" items="{{technology}}" as="tech">
+	    					<paper-item value="{{tech}}">{{tech}}</paper-item>
+						</template>
+					</paper-listbox>
+				</paper-dropdown-menu>
+			</div>
+			<div>
+				<paper-dropdown-menu label="Date">
+				  <paper-listbox class="dropdown-content" selected="{{filter.date}}" attr-for-selected="value">
+				  	<paper-item value="">All</paper-item>
+				    <paper-item value="Jan">January</paper-item>
+				    <paper-item value="Feb">February</paper-item>
+				    <paper-item value="Mar">March</paper-item>
+				    <paper-item value="Apr">April</paper-item>
+					<paper-item value="May">May</paper-item>
+					<paper-item value="Jun">June</paper-item>
+					<paper-item value="Jul">July</paper-item>
+					<paper-item value="Aug">August</paper-item>
+					<paper-item value="Sep">September</paper-item>
+					<paper-item value="Oct">October</paper-item>
+					<paper-item value="Nov">November</paper-item>
+					<paper-item value="Dec">December</paper-item>
+				  </paper-listbox>
+				</paper-dropdown-menu>
+			</div>
+		  	<div>
+				<paper-checkbox checked="{{filter.pastEvent}}" style="margin-top:18px;">
+			  		Include past events
+			  		<span class="subtitle">
+						
+					</span>
+				</paper-checkbox>
+			</div>
+	  	  </div>
+	  </div>
+  </template>
+  <script>
+  var filter = {
+	  "country":getParam("country"),
+	  "technology":getParam("technology"),
+	  "pastEvent":false,
+	  "date":"",
+  };
+  
+  function getParam(name) {
+        url = location.href;
+        name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+        var regexS = "[\\?&]"+name+"=([^&#]*)";
+        var regex = new RegExp( regexS );
+        var results = regex.exec( url );
+        return results == null ? "" : results[1];
+  }
+  
+  function updateURLParameter(param, paramVal){
+	  
+	  var url = window.location+'';
+      var newAdditionalURL = "";
+      var tempArray = url.split("?");
+      var baseURL = tempArray[0];
+      var additionalURL = tempArray[1];
+      var temp = "";
+      if (additionalURL) {
+          tempArray = additionalURL.split("&");
+          for (i=0; i<tempArray.length; i++){
+              if(tempArray[i].split('=')[0] != param){
+                  newAdditionalURL += temp + tempArray[i];
+                  temp = "&";
+              }
+          }
+      }
+	  if(paramVal=="") {
+		  return baseURL;
+	  }
+      var rows_txt = temp + "" + param + "=" + paramVal;
+      return baseURL + "?" + newAdditionalURL + rows_txt;
+  }
+  
+  function removeParam(key) {
+	  var sourceURL = window.location+'';
+      var rtn = sourceURL.split("?")[0],
+          param,
+          params_arr = [],
+          queryString = (sourceURL.indexOf("?") !== -1) ? sourceURL.split("?")[1] : "";
+      if (queryString !== "") {
+          params_arr = queryString.split("&");
+          for (var i = params_arr.length - 1; i >= 0; i -= 1) {
+              param = params_arr[i].split("=")[0];
+              if (param === key) {
+                  params_arr.splice(i, 1);
+              }
+          }
+          rtn = rtn + "?" + params_arr.join("&");
+      }
+      return rtn;
+  }
+      
+	Polymer({
+      is: 'events-filter',
+      properties: {
+          filter: {
+            notify: true,
+  		  	value: filter
+          }
+      },
+	  observers: [
+		  '_changeFilters(filter.country, filter.technology, filter.pastEvent)'
+	  ],
+	  _changeFilters: function(country, technology, pastEvent) {
+		  this.filter.country = country;
+		  this.filter.technology = technology;
+		  this.filter.pastEvent = pastEvent;
+
+		  if(this.filter.country!="") {
+		  		history.pushState('', '', updateURLParameter("country",this.filter.country));
+				this.$.dropdownCountry.selected = this.filter.country;
+		  } else {
+		  	    history.pushState('', '', removeParam("country"));
+		  }
+		  if(this.filter.technology!="") {
+		  		history.pushState('', '', updateURLParameter("technology",this.filter.technology));
+				this.$.dropdownTechnology.selected = this.filter.technology;
+		  } else {
+		  	    history.pushState('', '', removeParam("technology"));
+		  }
+	  }
+    });
+  </script>
+</dom-module>

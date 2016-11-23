@@ -1,0 +1,83 @@
+<!--
+  Copyright 2016 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<dom-module id="events-list">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      .no-more-msg {
+        min-height: 40px;
+        font-family: 'Roboto Slab';
+        font-size: 20px;
+        color: #BDBDBD;
+        cursor: default;
+        padding-left: 67px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      events-item:first-of-type {
+        margin-top: 0;
+      }
+
+      events-item {
+        margin: 16px 0;
+      }
+	  
+	  a:hover {
+	  	text-decoration:none;
+	  	text-shadow: 1px 0px 0px #555;
+	  }
+    </style>
+
+    <p class="no-more-msg" hidden="[[_eventsEmpty(events.length)]]">No more Events!</p>
+
+    <template is="dom-repeat"
+              items="{{events}}"
+              as="event"
+			  filter="{{_filter(filter.pastEvent, filter.country, filter.technology, filter.date)}}">
+       <events-item event="{{event}}"></events-item>
+    </template>
+
+  </template>
+  <script>
+  	var currentTime = Date.now();
+    Polymer({
+      is: 'events-list',
+      properties: {
+        filter:Object,
+        events: Array,
+        
+	  },
+      _eventsEmpty: function(length) {
+        return !!length;
+      },
+	  _filter: function(pastEvent, country, technology, date) {
+		  return function(item) {
+			  if(item.name!==undefined && item.technologies!==undefined) {
+			  	return ((pastEvent || (item.timestamp_end > (currentTime/1000))) && (item.country.match(new RegExp(filter.country, 'i'))) && (technology=="" || item.technologies.indexOf(technology)>-1) && (item.human_date_start.match(new RegExp(date, 'i'))));
+			} else {
+				return false;
+			}
+		  }  
+	  }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,64 @@
+<!--
+  Copyright 2016 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<dom-module id="events-data">
+
+  <template>
+	  <firebase-app auth-domain="project-3982873176818605742.firebaseapp.com"
+	    database-url="https://project-3982873176818605742.firebaseio.com"
+	    api-key="AIzaSyDlTlv3HU9paKgsPCIuUc_N5pgxBqPdXJo">
+	  </firebase-app>
+	  
+	  
+		  <firebase-query
+		      id="query"
+		      path="/events"
+		      data="{{events}}">
+		  </firebase-query>
+		  
+		  <firebase-document
+		    path="/countries/list"
+		    data="{{countries}}"></firebase-document>
+			
+		  <firebase-document
+		    path="/technologies/list"
+		    data="{{technology}}"></firebase-document>
+		  
+	  
+  </template>
+  <script>
+    
+    Polymer({
+      is: 'events-data',
+      properties: {
+        events: {
+          notify: true
+		  
+        },
+        countries: {
+          notify: true,
+		  value: function(){ return []; },
+		  type: Array
+        },
+        technology: {
+          notify: true,
+		  value: function(){ return []; },
+		  type: Array
+        }
+	  }
+    });
+  </script>
+</dom-module>
